@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 public class MyPackage{
     String name;
-    public MyPackage(String name){
-        this.name=name;
-    }    
-
     
     public Vector<Class<?>> getClasses(Vector<Class<?>> classes ,  String name ) throws ClassNotFoundException {
         String packageName= name;
