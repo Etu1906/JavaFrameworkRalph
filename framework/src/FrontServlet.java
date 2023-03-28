@@ -10,8 +10,10 @@ import java.util.Vector;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import model.util.*; 
+import java.lang.reflect.*;
 
 import etu1906.framework.Mapping;
+import etu1906.framework.view.ModelView;
 import model.util.Utilitaire;
 public class FrontServlet extends HttpServlet{
     HashMap<String , Mapping> MappingUrls = new HashMap<String  , Mapping>();
@@ -21,7 +23,7 @@ public class FrontServlet extends HttpServlet{
     public void init() throws ServletException {
         try{
             base = this.getInitParameter("base_url");
-            MyPackage p=new MyPackage("");
+            MyPackage p=new MyPackage();
             listpackage =  p.getClasses( null  , "" );
             this.MappingUrls = Utilitaire.getAllMethod(listpackage, MappingUrls ) ; 
         }catch( Exception e ){
@@ -42,25 +44,40 @@ public class FrontServlet extends HttpServlet{
         return map;
     }
 
-    protected void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException{
+    protected void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException,Exception{
         try{
             PrintWriter out = res.getWriter();
-            // for( Map.Entry<String, Mapping>  entry : MappingUrls.entrySet()){
-            //     out.println( entry.getKey() );
-            //     out.println( (entry.getValue()).getMethod() );
-            // }
-            // String context = req.getServletContext().getRealPath("");
             String url = req.getRequestURL().toString();  
             out.println(url);
 
 
             String value = Utilitaire.getUrl( url , base );
             System.out.println( MappingUrls.get(value) );
+            out.println("value : "+value);
 
+            if(  MappingUrls.get(value) == null )   throw new Exception(" cette url est invalide ");
 
-            for( Map.Entry<String , Mapping> entry : MappingUrls.entrySet() ){
-                out.println( "url :  "+entry.getKey()+" class : "+(entry.getValue()).getClassName() +" method : "+(entry.getValue()).getMethod() );
-            }
+            out.println( MappingUrls.get(value).getClassName()+" methode "+MappingUrls.get(value).getMethod() );
+
+            String className = MappingUrls.get(value).getClassName();
+            String MethodName = MappingUrls.get(value).getMethod();
+
+            //instanciation de la classe 
+            Class<?> clazz = Class.forName(className);
+
+            // prendre la méthode 
+            Method Method = clazz.getDeclaredMethod(  MethodName );
+
+            Object instanceClazz  = clazz.newInstance();
+
+            //invocation
+            Object result = Method.invoke(instanceClazz);
+
+            ModelView modelViewResult = (ModelView) result;
+
+            RequestDispatcher dispat = req.getRequestDispatcher(modelViewResult.getView());
+
+            dispat.forward(req,res);
 
         }catch( Exception e ){
             e.printStackTrace();
@@ -68,10 +85,20 @@ public class FrontServlet extends HttpServlet{
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException{
-        processRequest(req, res);
+        PrintWriter out = res.getWriter();
+        try{
+            processRequest(req, res);
+        }catch( Exception e ){
+            out.println(e.getMessage());
+        }
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException{
-        processRequest(req, res);
+        PrintWriter out = res.getWriter();
+        try{
+            processRequest(req, res);
+        }catch( Exception e ){
+            out.println(e.getMessage());
+        }
     }
 }
