@@ -44,6 +44,36 @@ public class FrontServlet extends HttpServlet{
         return map;
     }
 
+    public ModelView getModelView( String className , String MethodName )throws Exception{
+        //instanciation de la classe 
+        Class<?> clazz = Class.forName(className);
+
+        // prendre la méthode 
+        Method Method = clazz.getDeclaredMethod(  MethodName );
+
+        Object instanceClazz  = clazz.newInstance();
+
+        //invocation
+        Object result = Method.invoke(instanceClazz);
+
+        // cast en modelView
+        if( result instanceof ModelView ){
+            ModelView modelViewResult = (ModelView) result;
+            return  modelViewResult;
+        }
+        throw new Exception(" erreur lors de l'instanciation de la ModelView ");
+    }
+
+    public void setAttribute( ModelView modelViewResult , HttpServletRequest req )throws ServletException,IOException,Exception{
+        // iteration data
+        if( modelViewResult.getData() != null ){
+            for( Map.Entry<String , Object> entry : modelViewResult.getData().entrySet() ){
+                System.out.println( "key :  "+entry.getKey()+" value : "+(entry.getValue()) );
+                req.setAttribute( entry.getKey() , entry.getValue() );
+            }
+        }
+    }
+
     protected void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException,Exception{
         try{
             PrintWriter out = res.getWriter();
@@ -62,18 +92,13 @@ public class FrontServlet extends HttpServlet{
             String className = MappingUrls.get(value).getClassName();
             String MethodName = MappingUrls.get(value).getMethod();
 
-            //instanciation de la classe 
-            Class<?> clazz = Class.forName(className);
+            // instanciation de la modelView
+            ModelView modelViewResult = getModelView( className , MethodName );
 
-            // prendre la méthode 
-            Method Method = clazz.getDeclaredMethod(  MethodName );
+            // donner Attribut 
+            setAttribute( modelViewResult , req );
 
-            Object instanceClazz  = clazz.newInstance();
-
-            //invocation
-            Object result = Method.invoke(instanceClazz);
-
-            ModelView modelViewResult = (ModelView) result;
+            System.out.println(" view :  "+modelViewResult.getView());
 
             RequestDispatcher dispat = req.getRequestDispatcher(modelViewResult.getView());
 
