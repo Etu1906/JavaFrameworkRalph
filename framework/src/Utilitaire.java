@@ -2,7 +2,28 @@ package model.util;
 import model.*;
 import java.util.*;
 import  etu1906.framework.*;
+import java.lang.reflect.*;
+
 public class Utilitaire {
+
+    static String toUpperCaseFirstELement( String original )throws Exception{                                             //premier element en majuscule
+        return original.substring(0, 1).toUpperCase() + original.substring(1);
+    }
+
+    /// pour setter
+    public static String getSetterName( String value )throws Exception{
+        //récupérer nom du setter               
+        String set , method;
+        set = "set";
+        method = toUpperCaseFirstELement(value);
+        return set + method;
+      }
+
+      public static <T> Object callMethodByName(Object object, String methodName ,  Class<T> parameterType, T parameterValue) throws Exception {
+        Method method = object.getClass().getMethod(methodName, parameterType);
+        method.invoke(object, parameterValue);
+        return object;
+      }
 
     public static String getUrl(String url , String base ){
         int index =  url.indexOf(base); // trouver l'index de la chaîne "haha"

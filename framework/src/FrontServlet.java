@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -44,7 +45,30 @@ public class FrontServlet extends HttpServlet{
         return map;
     }
 
-    public ModelView getModelView( String className , String MethodName )throws Exception{
+    public void setValue( Object object , HttpServletRequest req  )throws  ServletException,IOException, Exception{
+        Map<String, String[]> parameterMap = req.getParameterMap();
+        String method = "",
+        paramName = "";
+        Method setMethod = null;
+        Object result = 0. ;
+        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+            paramName = entry.getKey();
+            String[] paramValues = entry.getValue();
+            System.out.println(" name :  "+paramName+"  values : "+Arrays.toString(paramValues));
+            method =  Utilitaire.getSetterName(paramName);
+
+            try{
+                System.out.println(" la methode :  "+method);
+                setMethod = object.getClass().getDeclaredMethod(method ,  String.class );                
+                System.out.println(" parametre iray ");
+                result = Utilitaire.callMethodByName(object,method , String.class, paramValues[0]  );                    
+            }catch( NoSuchMethodException se ){
+                System.err.println(se);
+            }
+        }
+    }
+
+    public ModelView getModelView( String className , String MethodName , HttpServletRequest req  )throws  ServletException,IOException , Exception{
         //instanciation de la classe 
         Class<?> clazz = Class.forName(className);
 
@@ -53,8 +77,11 @@ public class FrontServlet extends HttpServlet{
 
         Object instanceClazz  = clazz.newInstance();
 
+        setValue(instanceClazz, req);
+
         //invocation
         Object result = Method.invoke(instanceClazz);
+
 
         // cast en modelView
         if( result instanceof ModelView ){
@@ -75,8 +102,8 @@ public class FrontServlet extends HttpServlet{
     }
 
     protected void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException,Exception{
+        PrintWriter out = res.getWriter();
         try{
-            PrintWriter out = res.getWriter();
             String url = req.getRequestURL().toString();  
             out.println(url);
 
@@ -91,9 +118,8 @@ public class FrontServlet extends HttpServlet{
 
             String className = MappingUrls.get(value).getClassName();
             String MethodName = MappingUrls.get(value).getMethod();
-
             // instanciation de la modelView
-            ModelView modelViewResult = getModelView( className , MethodName );
+            ModelView modelViewResult = getModelView( className , MethodName , req );
 
             // donner Attribut 
             setAttribute( modelViewResult , req );
@@ -106,6 +132,8 @@ public class FrontServlet extends HttpServlet{
 
         }catch( Exception e ){
             e.printStackTrace();
+            out.println(e.getMessage());
+            throw e;
         } 
     }
 

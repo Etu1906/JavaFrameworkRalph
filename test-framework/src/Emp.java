@@ -9,6 +9,8 @@ import model.*;
 public class Emp {
 
     String nom;
+    String prenom;
+
 
     public Emp(){
 
@@ -18,7 +20,9 @@ public class Emp {
         this.nom = nom;
     }
 
-    public static Vector<Emp> listEmp(){
+
+
+    public static Vector<Emp> prenommp(){
         Vector<Emp> list = new Vector<Emp>();
 
         Emp emp1 = new Emp("Jean");
@@ -32,11 +36,26 @@ public class Emp {
         return list;
     }
 
+    @Urls( url="save" )
+    public ModelView save(){
+        ModelView view = new ModelView( "save.jsp" );
+        System.out.println(" nom :  "+getNom()); 
+        System.out.println(" prenom :  "+getPrenom()); 
+        view.addItem("nom",  getNom() );
+        return view;
+    }
+
+    @Urls( url="form" )
+    public ModelView form(){
+        ModelView view = new ModelView( "form.jsp" );
+        return view;
+    }
+
     @Urls( url="emp-all" )
     public ModelView findAll(){
         System.out.println(" bonjuour ");
         ModelView view = new ModelView( "list-emp.jsp" );
-        Vector<Emp> l = listEmp();
+        Vector<Emp> l = prenommp();
         view.addItem("lst", l);
         return view;
     }
@@ -46,6 +65,15 @@ public class Emp {
     }
 
     public void setNom(String nom) {
+        System.out.println(" entre  dans nom :  "+nom);
         this.nom = nom;
     }     
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
 }
