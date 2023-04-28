@@ -14,7 +14,11 @@
         </p>
         <p>
             <label for="">Prenom:</label>
-            <input type="text" name="prenom" id="" value=" vade retro ">
+            <input type="text" name="prenom" id="" value="5">
+        </p>
+        <p>
+            <label for="">date:</label>
+            <input type="date" name="data" id="" value="2022/01/01">
         </p>
         <p>
             <input type="submit" value="valider">

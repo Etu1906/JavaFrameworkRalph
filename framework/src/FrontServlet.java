@@ -16,6 +16,8 @@ import java.lang.reflect.*;
 import etu1906.framework.Mapping;
 import etu1906.framework.view.ModelView;
 import model.util.Utilitaire;
+import model.util.StringCaster;
+
 public class FrontServlet extends HttpServlet{
     HashMap<String , Mapping> MappingUrls = new HashMap<String  , Mapping>();
     Vector<Class<?>> listpackage;
@@ -23,9 +25,11 @@ public class FrontServlet extends HttpServlet{
 
     public void init() throws ServletException {
         try{
+            //prendre l'url du projet
             base = this.getInitParameter("base_url");
             MyPackage p=new MyPackage();
             listpackage =  p.getClasses( null  , "" );
+            // toutes les methodes annotees
             this.MappingUrls = Utilitaire.getAllMethod(listpackage, MappingUrls ) ; 
         }catch( Exception e ){
             e.printStackTrace();
@@ -46,23 +50,25 @@ public class FrontServlet extends HttpServlet{
     }
 
     public void setValue( Object object , HttpServletRequest req  )throws  ServletException,IOException, Exception{
+        // les parametres de la requete
         Map<String, String[]> parameterMap = req.getParameterMap();
+/// Donnees
         String method = "",
         paramName = "";
-        Method setMethod = null;
-        Object result = 0. ;
+        Object result = null ;
+        Field field;
+/// boucle de chq parametre envoye
         for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
             paramName = entry.getKey();
             String[] paramValues = entry.getValue();
-            System.out.println(" name :  "+paramName+"  values : "+Arrays.toString(paramValues));
+            //prendre le setter
             method =  Utilitaire.getSetterName(paramName);
-
+            
             try{
-                System.out.println(" la methode :  "+method);
-                setMethod = object.getClass().getDeclaredMethod(method ,  String.class );                
-                System.out.println(" parametre iray ");
-                result = Utilitaire.callMethodByName(object,method , String.class, paramValues[0]  );                    
-            }catch( NoSuchMethodException se ){
+                field = object.getClass().getDeclaredField( paramName );
+                // appeler la methode set + parametre
+                result = Utilitaire.callMethodByName(object, method ,  field.getType()  , StringCaster.cast(paramValues[0])  );                    
+            }catch( NoSuchMethodException | NoSuchFieldException se ){
                 System.err.println(se);
             }
         }
@@ -75,8 +81,11 @@ public class FrontServlet extends HttpServlet{
         // prendre la méthode 
         Method Method = clazz.getDeclaredMethod(  MethodName );
 
+        Parameter[] parameters = method.getParameters();
+
         Object instanceClazz  = clazz.newInstance();
 
+        //appeler les setters
         setValue(instanceClazz, req);
 
         //invocation
@@ -107,14 +116,9 @@ public class FrontServlet extends HttpServlet{
             String url = req.getRequestURL().toString();  
             out.println(url);
 
-
             String value = Utilitaire.getUrl( url , base );
-            System.out.println( MappingUrls.get(value) );
-            out.println("value : "+value);
 
             if(  MappingUrls.get(value) == null )   throw new Exception(" cette url est invalide ");
-
-            out.println( MappingUrls.get(value).getClassName()+" methode "+MappingUrls.get(value).getMethod() );
 
             String className = MappingUrls.get(value).getClassName();
             String MethodName = MappingUrls.get(value).getMethod();
@@ -124,7 +128,7 @@ public class FrontServlet extends HttpServlet{
             // donner Attribut 
             setAttribute( modelViewResult , req );
 
-            System.out.println(" view :  "+modelViewResult.getView());
+            // System.out.println(" view :  "+modelViewResult.getView());
 
             RequestDispatcher dispat = req.getRequestDispatcher(modelViewResult.getView());
 
@@ -132,7 +136,6 @@ public class FrontServlet extends HttpServlet{
 
         }catch( Exception e ){
             e.printStackTrace();
-            out.println(e.getMessage());
             throw e;
         } 
     }
