@@ -6,7 +6,20 @@ import java.lang.reflect.*;
 
 public class Utilitaire {
 
-    static String toUpperCaseFirstELement( String original )throws Exception{                                             //premier element en majuscule
+    public static Object[] setValueParam( Map<String, String[]> parameterMap , Parameter[] parameters  ){
+        Object[] new_parameter = new Object[ parameters.length ]; int i = 0;
+        for (Parameter parameter : parameters) {
+            String name = parameter.getName();
+            Class<?> type = parameter.getType();
+            new_parameter[i++] = StringCaster.cast(MparameterMap.get( name )); 
+        }
+
+        return new_parameter;
+    }
+
+
+    static String toUpperCaseFirstELement( String original )throws Exception{                                             
+        //premier element en majuscule
         return original.substring(0, 1).toUpperCase() + original.substring(1);
     }
 
@@ -19,10 +32,14 @@ public class Utilitaire {
         return set + method;
       }
 
-      public static <T> Object callMethodByName(Object object, String methodName ,  Class<T> parameterType, T parameterValue) throws Exception {
-        Method method = object.getClass().getMethod(methodName, parameterType);
-        method.invoke(object, parameterValue);
-        return object;
+      public static <T> Object callMethodByName(Object object, String methodName ,  Class<T> parameterType,     Object parameterValue) throws NoSuchMethodException , Exception {
+            try{
+                Method method = object.getClass().getMethod(methodName, parameterType);
+                method.invoke(object, parameterValue);
+                return object;
+            }catch( NoSuchMethodException se ){
+                throw se; 
+            }
       }
 
     public static String getUrl(String url , String base ){

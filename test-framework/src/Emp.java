@@ -2,15 +2,23 @@ package model.haha;
 
 import java.util.List;
 import java.util.Vector;
-
+import java.sql.*;
 import etu1906.framework.view.*;
 import model.*;
 
 public class Emp {
 
     String nom;
-    String prenom;
+    // float prenom;
+    Date data;
 
+    public Date getData() {
+        return data;
+    }
+
+    public void setData(Date data) {
+        this.data = data;
+    }
 
     public Emp(){
 
@@ -37,10 +45,12 @@ public class Emp {
     }
 
     @Urls( url="save" )
-    public ModelView save(){
+    public ModelView save( String nom ){
         ModelView view = new ModelView( "save.jsp" );
         System.out.println(" nom :  "+getNom()); 
-        System.out.println(" prenom :  "+getPrenom()); 
+        // System.out.println(" prenom :  "+getPrenom()); 
+        System.out.println(" data :  "+getData().toString());         
+
         view.addItem("nom",  getNom() );
         return view;
     }
@@ -69,11 +79,11 @@ public class Emp {
         this.nom = nom;
     }     
 
-    public String getPrenom() {
-        return prenom;
-    }
+    // public float getPrenom() {
+    //     return prenom;
+    // }
 
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-    }
+    // public void setPrenom(float prenom) {
+    //     this.prenom = prenom;
+    // }
 }
