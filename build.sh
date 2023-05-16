@@ -3,25 +3,23 @@ clear;
 
 # compilation framework
 cd framework/build;
-javac -d framework ../src/*.java;
+javac -parameters -d . ../src/*.java;
 
 # jar
-cd framework;
-jar -cf ../fw.jar .;
-cd ..;
+jar -cf fw-10.jar .;
 
 # copie vers lib
-cp fw.jar  ../../test-framework/WEB-INF/lib/;
+cp fw-10.jar  ../../test-framework/WEB-INF/lib/;
 
 # war
-cd /home/ralph/ralph/apache-tomcat-8.5.82/webapps/framework3/test-framework/src;
+cd /home/ralph/ralph/apache-tomcat-10.0.27/webapps/framework3/test-framework/src;
 
 # compilation de mon projet
-javac -d ../WEB-INF/classes *.java;
+javac -parameters -d ../WEB-INF/classes *.java;
 cd ../../test-framework;
 
 # war
-jar -cf framework4.war .;
+jar -cf framework6.war .;
 
 # deployement vers tomcat
-cp  framework4.war /home/ralph/ralph/apache-tomcat-8.5.82/webapps;
+cp  framework6.war /home/ralph/ralph/apache-tomcat-10.0.27/webapps;

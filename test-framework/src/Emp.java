@@ -6,10 +6,11 @@ import java.sql.*;
 import etu1906.framework.view.*;
 import model.*;
 
+
 public class Emp {
 
     String nom;
-    // float prenom;
+    float prenom;
     Date data;
 
     public Date getData() {
@@ -28,7 +29,19 @@ public class Emp {
         this.nom = nom;
     }
 
+    @Urls( url="liste")
+    public ModelView getList(){
+        ModelView view = new ModelView( "liste.jsp" );
+        return view;
+    }
 
+    @Urls( url="details" )
+    public ModelView getDetails( String prenom , int id ){
+        ModelView view = new ModelView( "details.jsp" );
+        view.addItem( "prenom" , prenom );
+        System.out.println( " id :  "+id );
+        return view;
+    }
 
     public static Vector<Emp> prenommp(){
         Vector<Emp> list = new Vector<Emp>();
@@ -45,12 +58,12 @@ public class Emp {
     }
 
     @Urls( url="save" )
-    public ModelView save( String nom ){
+    public ModelView save(){
         ModelView view = new ModelView( "save.jsp" );
         System.out.println(" nom :  "+getNom()); 
         // System.out.println(" prenom :  "+getPrenom()); 
         System.out.println(" data :  "+getData().toString());         
-
+        view.addItem("prenom",  getPrenom() );
         view.addItem("nom",  getNom() );
         return view;
     }
@@ -79,11 +92,11 @@ public class Emp {
         this.nom = nom;
     }     
 
-    // public float getPrenom() {
-    //     return prenom;
-    // }
+    public float getPrenom() {
+        return prenom;
+    }
 
-    // public void setPrenom(float prenom) {
-    //     this.prenom = prenom;
-    // }
+    public void setPrenom(float prenom) {
+        this.prenom = prenom;
+    }
 }
