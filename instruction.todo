@@ -1,0 +1,80 @@
+I - version:
+    - tomcat 8.5.82
+    - jdk-17
+
+II - changer la base url dans web.xml :
+    - <?xml version="1.0" encoding="UTF-8"?>
+    -    <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    -    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    -    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+    -    http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    -    version="2.4">
+    -        <servlet>
+    -            <servlet-name>FrontServlet</servlet-name>
+    -            <servlet-class>etu1906.framework.servlet.FrontServlet</servlet-class>
+    -            <init-param>
+    -                <param-name>base_url</param-name>
+    -                <param-value>http://localhost:8081/monprojet/</param-value>
+    -                <description>url</description>
+    -            </init-param>
+    -        </servlet>
+    -
+    -        <servlet-mapping>
+    -        <servlet-name>FrontServlet</servlet-name>
+    -            <url-pattern>/</url-pattern>
+    -        </servlet-mapping>
+    -    </web-app>`
+
+III - copier ceci dans /etc/bash.bashrc :
+    - `export="/.../framework/build/fw.jar"`
+
+IV - controller:
+    importer les classes du .jar : 
+        - import etu1906.framework.view.ModelView;
+        - import model.Urls;
+    - creer une methode annote @Url="path"
+    connexion controller-view:
+        -  instanicier un ModelView comme ceci : `ModelView view = new ModelView( "details.jsp" );` ou `ModelView view = new ModelView(); view.setView( "details.jsp" );`
+        -  ajouter un item avec :  `view.addItem( cle , valeur );`
+        - ces methodes retourne un modelview 
+V - type:
+    - int,double,float,long,boolean
+    - Integer,Double,Float,Long,Boolean
+    - String
+    - java.util.Date,java.sql,java.sql.Timestamp 
+    - BigDecimal
+
+VI - view:
+    - les items ajouter sont recuperer avec request.getAttribute('nom de l'item ')
+    ✘ caster les objets !!!!!!
+    connexion view-controller:
+        par attribut de classe :
+            - assurer vous  que le nom des paramaretres envoyees par la requete soit le meme que le celui de l'attribut    
+            ✘ n'oublier pas de declarer les setters comme ceci : set + NomAttribut ( premier caractere en majuscule )
+            
+        par argument d;une fonction:
+            - de meme pour l'argument d'une fonction
+
+VII - adaptation au script:
+    `( par % au repertoire courant )`
+    - mettre les codes java dans un fichier src
+    - creer un dossier WEB-INF 
+            - -> creer un dossier lib pour y mettre le .jar 
+            - ->creer un dossier classes pour y mettre les classes
+    - adapter votre script a ces modifications : 
+        #!/bin/bash.
+        clear;
+        
+        # war
+        cd /.../test-framework/src;
+        
+        # compilation de mon projet
+        javac -parameters -d ../WEB-INF/classes *.java;
+        cd ../../test-framework;
+        
+        # war
+        jar -cf monprojet.war .;
+        
+        # deployement vers tomcat
+        cp  monprojet.war /.../apache-tomcat-8.5.82/webapps;
+    

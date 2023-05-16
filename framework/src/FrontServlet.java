@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import model.util.*; 
 import java.lang.reflect.*;
 
@@ -49,9 +49,7 @@ public class FrontServlet extends HttpServlet{
         return map;
     }
 
-    public void setValue( Object object , HttpServletRequest req  )throws  ServletException,IOException, Exception{
-        // les parametres de la requete
-        Map<String, String[]> parameterMap = req.getParameterMap();
+    public void setValue( Object object , HttpServletRequest req  , Map<String, String[]> parameterMap )throws  ServletException,IOException, Exception{
 /// Donnees
         String method = "",
         paramName = "";
@@ -66,30 +64,42 @@ public class FrontServlet extends HttpServlet{
             
             try{
                 field = object.getClass().getDeclaredField( paramName );
+                System.out.println(" classe field :  "+field.getType().getName());
                 // appeler la methode set + parametre
-                result = Utilitaire.callMethodByName(object, method ,  field.getType()  , StringCaster.cast(paramValues[0])  );                    
+                result = Utilitaire.callMethodByName(object, method ,  field.getType()  , StringCaster.cast(paramValues[0] , field.getType()   )   );                    
             }catch( NoSuchMethodException | NoSuchFieldException se ){
                 System.err.println(se);
             }
         }
     }
 
-    public ModelView getModelView( String className , String MethodName , HttpServletRequest req  )throws  ServletException,IOException , Exception{
+    public ModelView getModelView( String className , String MethodName , HttpServletRequest req , Map<String, String[]> parameterMap )throws  ServletException,IOException , Exception{
         //instanciation de la classe 
         Class<?> clazz = Class.forName(className);
 
-        // prendre la méthode 
-        Method Method = clazz.getDeclaredMethod(  MethodName );
 
-        Parameter[] parameters = method.getParameters();
+        // prendre la méthode 
+        Method Method = Utilitaire.getMethod( MethodName , clazz );
+        System.out.println(" nahita methode ");
+
+        Parameter[] parameters = Method.getParameters();
+
+        Object[] valueParameter = Utilitaire.setValueParam( parameterMap , parameters );
 
         Object instanceClazz  = clazz.newInstance();
 
         //appeler les setters
-        setValue(instanceClazz, req);
+        setValue(instanceClazz, req , parameterMap);
+
+        String name = "";int i = 0;
+        for (Parameter parameter : parameters) {
+            name = parameter.getName();
+            Class<?> type = parameter.getType();
+            System.out.println(" methode  =  nom : "+name+" type :  "+type.getName()+" value: "+valueParameter[i++]);
+        }
 
         //invocation
-        Object result = Method.invoke(instanceClazz);
+        Object result = Method.invoke(instanceClazz ,valueParameter );
 
 
         // cast en modelView
@@ -111,6 +121,7 @@ public class FrontServlet extends HttpServlet{
     }
 
     protected void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException,Exception{
+        System.out.println(" process request ");
         PrintWriter out = res.getWriter();
         try{
             String url = req.getRequestURL().toString();  
@@ -122,8 +133,12 @@ public class FrontServlet extends HttpServlet{
 
             String className = MappingUrls.get(value).getClassName();
             String MethodName = MappingUrls.get(value).getMethod();
+
+            // les parametres de la requete
+            Map<String, String[]> parameterMap = req.getParameterMap();
+
             // instanciation de la modelView
-            ModelView modelViewResult = getModelView( className , MethodName , req );
+            ModelView modelViewResult = getModelView( className , MethodName , req , parameterMap);
 
             // donner Attribut 
             setAttribute( modelViewResult , req );

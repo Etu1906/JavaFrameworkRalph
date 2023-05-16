@@ -6,12 +6,32 @@ import java.lang.reflect.*;
 
 public class Utilitaire {
 
+
+    public static Method  getMethod( String MethodName , Class clazz )throws Exception{
+        Method[] methods =  clazz.getDeclaredMethods();
+        for( Method met : methods ){
+            if( met.getName().compareToIgnoreCase(MethodName) == 0 ){
+                Class<?>[] parameterTypes = met.getParameterTypes();
+                for (Class<?> parameterType : parameterTypes) {
+                }
+                return met;
+            }
+        }
+
+        throw new Exception( " ne correspand a aucune fonction " );
+    }
+
     public static Object[] setValueParam( Map<String, String[]> parameterMap , Parameter[] parameters  ){
-        Object[] new_parameter = new Object[ parameters.length ]; int i = 0;
+        Object[] new_parameter = new Object[ parameters.length ]; int i = 0; String value=  null;String name = "";
         for (Parameter parameter : parameters) {
-            String name = parameter.getName();
+            name = parameter.getName();
+            System.out.println(name);
             Class<?> type = parameter.getType();
-            new_parameter[i++] = StringCaster.cast(MparameterMap.get( name )); 
+            if( parameterMap.get( name ) != null ) value = parameterMap.get( name )[0];
+            else value = null;
+
+            System.out.println( "nom : "+name+" value :  "+value );
+            new_parameter[i++] = StringCaster.cast(value , type ); 
         }
 
         return new_parameter;

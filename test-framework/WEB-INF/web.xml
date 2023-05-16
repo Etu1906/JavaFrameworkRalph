@@ -9,7 +9,7 @@ version="2.4">
         <servlet-class>etu1906.framework.servlet.FrontServlet</servlet-class>
         <init-param>
             <param-name>base_url</param-name>
-            <param-value>http://localhost:8081/framework4/</param-value>
+            <param-value>http://localhost:1325/framework6/</param-value>
             <description>url</description>
         </init-param>
     </servlet>
