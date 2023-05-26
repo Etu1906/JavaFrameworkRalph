@@ -83,8 +83,12 @@ public class FrontServlet extends HttpServlet{
                 System.out.println(" paramname :  "+paramName);
                 field = object.getClass().getDeclaredField( paramName );
                 System.out.println(" classe field :  "+field.getType().getName());
-                Object  value = StringCaster.cast(paramValues[0] , field.getType()   );
-                // appeler la methode set + parametre
+                Object  value = null;
+                System.out.println(" est tableau :  "+Utilitaire.estTableau( field.getType()));
+                //if( Utilitaire.estTableau( field.getType() ))
+                //	value = Utilitaire.creerTableau1D(  field.getType() , paramValues.length , paramValues ); 
+                //else
+                	StringCaster.cast(paramValues[0] , field.getType()   );
                 if( StringCaster.isFileUpload( field.getType() ) ){
                     System.out.println(" file upload yes ");
                     System.out.println(" value "+value);
@@ -95,6 +99,7 @@ public class FrontServlet extends HttpServlet{
                         throw e;
                     }
                 }
+                // appeler la methode set + parametre
                 result = Utilitaire.callMethodByName(object, method ,  field.getType()  ,  value  );                    
             }catch( NoSuchMethodException | NoSuchFieldException se ){
                 System.err.println(se);

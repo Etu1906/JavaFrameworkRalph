@@ -6,6 +6,48 @@ import java.lang.reflect.*;
 
 public class Utilitaire {
 
+   public static void setValueIfPrimitiv( Object value , Class<?> type , String input ){
+   	System.out.println( " classe prim :  "+type.getName()    );
+   	if( type.getName().compareToIgnoreCase("int") == 0 ){
+   			int parse = Integer.parseInt(input);
+   			value = parse;
+        }
+   	if( type.getName().compareToIgnoreCase("float") == 0 ){
+		float parse = Float.parseFloat(input);
+		value = parse;
+		return;
+    }
+       	if( type.getName().compareToIgnoreCase("boolean") == 0 ){
+		boolean parse = Boolean.parseBoolean(input);
+		value = parse;
+		return;
+    }
+       	if( type.getName().compareToIgnoreCase("double") == 0 ){
+		double parse = Double.parseDouble(input);
+		value = parse;
+		return;
+    }
+    value = StringCaster.cast( input , type );
+    
+   }
+
+   public static Object[] creerTableau1D(Class<?> componentType, int taille, String[] valeur) throws Exception{
+        Object[] tableau = (Object[]) Array.newInstance(componentType, taille);
+        String paramValues = "";
+        // Assigner la valeur à chaque élément du tableau
+        for (int i = 0; i < taille; i++) {
+			paramValues = valeur[i];
+			setValueIfPrimitiv( tableau[i] ,  componentType.getComponentType() , paramValues );
+        }
+        
+        return tableau;
+    }
+
+   public static boolean estTableau(Class<?> clazz) {
+	    return clazz.isArray();
+   }
+
+
 
     public static Method  getMethod( String MethodName , Class clazz )throws Exception{
         Method[] methods =  clazz.getDeclaredMethods();
