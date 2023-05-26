@@ -15,7 +15,7 @@
         </tr>
         <tr>
             <td>Rakoto</td>
-            <td><a href="details?prenom=Rakoto">details</a></td>
+            <td><a href="details.do?prenom=Rakoto&id=2">details</a></td>
         </tr>
     </table>
 </body>

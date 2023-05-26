@@ -7,7 +7,7 @@
     <title>formulaire</title>
 </head>
 <body>
-    <form action="save" method="post">
+    <form action="save.do" method="post" enctype="multipart/form-data" >
         <p>
             <label for="">Nom:</label>
             <input type="text" name="nom" id="" value=" the King (Lion) ">
@@ -19,6 +19,9 @@
         <p>
             <label for="">date:</label>
             <input type="date" name="data" id="" value="2022/01/01">
+        </p>
+        <p>
+            <input type="file" name="fichier">
         </p>
         <p>
             <input type="submit" value="valider">
