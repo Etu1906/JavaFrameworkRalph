@@ -12,10 +12,14 @@ version="2.4">
             <param-value>http://localhost:1325/framework6/</param-value>
             <description>url</description>
         </init-param>
+        <multipart-config>
+            <max-file-size>500000</max-file-size>
+            <max-request-size>500000</max-request-size>
+        </multipart-config>
     </servlet>
 
     <servlet-mapping>
     <servlet-name>FrontServlet</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>*.do</url-pattern>
     </servlet-mapping>
 </web-app>

@@ -21,12 +21,35 @@ public class Utilitaire {
         throw new Exception( " ne correspand a aucune fonction " );
     }
 
+    // req.getParameter -> argument de la methode
+    public static Object[] setValueParam( String[] args ,  Map<String, String[]> parameterMap ,Parameter[] parameters  ){
+        Object[] new_parameter = new Object[ parameters.length ]; int i = 0; String value=  null;String name = "";String arg = "";
+        for (Parameter parameter : parameters) {
+            name = args[i];
+            System.out.println(name);
+            Class<?> type = parameter.getType();
+
+            // if( parameters.getType() )
+            if( parameterMap.get( name ) != null ) value = parameterMap.get( name )[0];
+            else value = null;
+
+            System.out.println( "nom : "+name+" value :  "+value );
+            new_parameter[i++] = StringCaster.cast(value , type );
+        }
+
+        return new_parameter;
+    }
+
+
+    // req.getParameter -> argument de la methode
     public static Object[] setValueParam( Map<String, String[]> parameterMap , Parameter[] parameters  ){
         Object[] new_parameter = new Object[ parameters.length ]; int i = 0; String value=  null;String name = "";
         for (Parameter parameter : parameters) {
             name = parameter.getName();
             System.out.println(name);
             Class<?> type = parameter.getType();
+
+            // if( parameters.getType() )
             if( parameterMap.get( name ) != null ) value = parameterMap.get( name )[0];
             else value = null;
 

@@ -1,17 +1,28 @@
 package model.haha;
 
+
+import etu1906.framework.file.FileUpload;
 import java.util.List;
 import java.util.Vector;
 import java.sql.*;
 import etu1906.framework.view.*;
 import model.*;
-
+import java.io.FileOutputStream;
 
 public class Emp {
 
     String nom;
-    float prenom;
+    float idprenom;
     Date data;
+    FileUpload fichier;
+
+
+    public FileUpload getFichier(){
+        return fichier;
+    }
+    public void setFichier( FileUpload fichier ){
+        this.fichier = fichier;
+    }
 
     public Date getData() {
         return data;
@@ -29,14 +40,15 @@ public class Emp {
         this.nom = nom;
     }
 
-    @Urls( url="liste")
+    @Urls( url="liste.do")
     public ModelView getList(){
         ModelView view = new ModelView( "liste.jsp" );
         return view;
     }
 
-    @Urls( url="details" )
-    public ModelView getDetails( String prenom , int id ){
+    @Urls( url="details.do" )
+    @Argument(argument={"prenom","id"} )
+    public ModelView getDetails( String prenom , Integer id ){
         ModelView view = new ModelView( "details.jsp" );
         view.addItem( "prenom" , prenom );
         System.out.println( " id :  "+id );
@@ -57,24 +69,44 @@ public class Emp {
         return list;
     }
 
-    @Urls( url="save" )
+    // sauvegarde de l'image
+    public void saveByte( String nameFile , byte[] bytes )throws Exception{
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(nameFile);
+            fos.write(bytes);
+            System.out.println("Le fichier a été sauvegardé avec succès :");
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
+    }
+
+    @Urls( url="save.do" )
     public ModelView save(){
         ModelView view = new ModelView( "save.jsp" );
         System.out.println(" nom :  "+getNom()); 
+        System.out.println(" fichier : "+getFichier().toString());
         // System.out.println(" prenom :  "+getPrenom()); 
-        System.out.println(" data :  "+getData().toString());         
-        view.addItem("prenom",  getPrenom() );
+        // System.out.println(" data :  "+getData().toString()); 
+        view.addItem("fichier",  getFichier().getName() );
+        try{
+            saveByte( getFichier().getName() , getFichier().getBytes() );
+        }catch( Exception e ){
+            e.printStackTrace();
+        }
         view.addItem("nom",  getNom() );
         return view;
     }
 
-    @Urls( url="form" )
+    @Urls( url="form.do" )
     public ModelView form(){
         ModelView view = new ModelView( "form.jsp" );
         return view;
     }
 
-    @Urls( url="emp-all" )
+    @Urls( url="emp-all.do" )
     public ModelView findAll(){
         System.out.println(" bonjuour ");
         ModelView view = new ModelView( "list-emp.jsp" );
@@ -92,11 +124,19 @@ public class Emp {
         this.nom = nom;
     }     
 
-    public float getPrenom() {
-        return prenom;
+    public float getIdprenom() {
+        return idprenom;
     }
 
-    public void setPrenom(float prenom) {
-        this.prenom = prenom;
+    public void setIdprenom(float idprenom) {
+        this.idprenom = idprenom;
     }
+
+    // public float getPrenom() {
+    //     return prenom;
+    // }
+
+    // public void setPrenom(float prenom) {
+    //     this.prenom = prenom;
+    // }
 }

@@ -1,49 +1,68 @@
 package model.util;
-
+import etu1906.framework.file.FileUpload;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.sql.Date;
 import java.sql.Timestamp;
+import jakarta.servlet.http.Part;
 import java.sql.Time;
 
 public class StringCaster {
 
+    public static  boolean isFileUpload(  Class<?> clazz){
+        if( clazz.getSimpleName().compareToIgnoreCase("fileupload") == 0 )
+            return true;
+        return false;
+    }
+
+    public static Object castFileUpload( String value ,  Part part )throws Exception{
+        return new FileUpload( value , part );
+    }
+
     public static Object cast(String input , Class<?> clazz) {
         System.out.println(" la classe :  "+clazz.getName());
         System.out.println(" simpleName :  "+clazz.getSimpleName());
-        System.out.println(" caster 2");
+        System.out.println(" caster 2"+input);
         // Try to cast to integer
         try {
             if( clazz.getName().compareToIgnoreCase("int") == 0 || clazz.getSimpleName().compareToIgnoreCase("integer") == 0 ){
-                if( input == null )
+                if( input == null && clazz.getName().compareToIgnoreCase("int") == 0  )
                     return 0;
+                if ( input == null && clazz.getName().compareToIgnoreCase("int") != 0  )
+                    return null;
                 return Integer.parseInt(input);
             }
         } catch (Exception e) {}
         
-        if( clazz.getSimpleName().compareToIgnoreCase("float") == 0 || clazz.getSimpleName().compareToIgnoreCase("float") == 0  ){
+        if( clazz.getName().compareToIgnoreCase("float") == 0 || clazz.getSimpleName().compareToIgnoreCase("float") == 0  ){
             // Try to cast to float
             try {
-                if( input == null )
+                if( input == null  && clazz.getName().compareTo("float") == 0 )
                     return 0;
+                if( input == null  && clazz.getName().compareTo("float") != 0 )
+                    return null;
                 return Float.parseFloat(input);
             } catch (Exception e) {}
         }
-        if( clazz.getSimpleName().compareToIgnoreCase("double") == 0 || clazz.getSimpleName().compareToIgnoreCase("double") == 0  ){
+        if( clazz.getName().compareToIgnoreCase("double") == 0 || clazz.getSimpleName().compareToIgnoreCase("double") == 0  ){
             // Try to cast to double
             try {
-                if( input == null )
+                if( input == null && clazz.getName().compareTo("double") == 0 )
                     return 0;
+                if( input == null  && clazz.getName().compareTo("double") != 0 )
+                    return null;
                 return Double.parseDouble(input);
             } catch (Exception e) {}
         }
         // Try to cast to long
-        if( clazz.getSimpleName().compareToIgnoreCase("long") == 0 || clazz.getSimpleName().compareToIgnoreCase("long") == 0  ){
+        if( clazz.getName().compareToIgnoreCase("long") == 0 || clazz.getSimpleName().compareToIgnoreCase("long") == 0  ){
             try {
-                if( input  == null )
+                if( input  == null  && clazz.getName().compareTo("long") != 0  )
                     return 0;
+                if( input == null  && clazz.getName().compareTo("long") != 0 )
+                    return null;
                 return Long.parseLong(input);
             } catch (Exception e) {}
         }
