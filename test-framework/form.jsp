@@ -20,6 +20,12 @@
             <label for="">date:</label>
             <input type="date" name="data" id="" value="2022/01/01">
         </p>
+	<p>
+            <label for="">type :</label>
+            <input type="checkbox" name="check" id="" value="1"> Homme </br>
+            <input type="checkbox" name="check" id="" value="2"> Femme </br>
+            <input type="checkbox" name="check" id="" value="3"> Autre </br>
+        </p>
         <p>
             <input type="file" name="fichier">
         </p>

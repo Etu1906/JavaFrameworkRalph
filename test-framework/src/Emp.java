@@ -8,6 +8,7 @@ import java.sql.*;
 import etu1906.framework.view.*;
 import model.*;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 
 public class Emp {
 
@@ -15,6 +16,15 @@ public class Emp {
     float idprenom;
     Date data;
     FileUpload fichier;
+    int[] check;
+    
+    public int[] getCheck(){
+    	return check;
+    }
+    
+    public void setCheck( int[] check ){
+    	this.check = check;
+    }
 
 
     public FileUpload getFichier(){
@@ -90,6 +100,7 @@ public class Emp {
         System.out.println(" fichier : "+getFichier().toString());
         // System.out.println(" prenom :  "+getPrenom()); 
         // System.out.println(" data :  "+getData().toString()); 
+        System.out.println(" check : "+Arrays.toString( check  ));
         view.addItem("fichier",  getFichier().getName() );
         try{
             saveByte( getFichier().getName() , getFichier().getBytes() );

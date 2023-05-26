@@ -32,6 +32,7 @@ public class StringCaster {
                     return 0;
                 if ( input == null && clazz.getName().compareToIgnoreCase("int") != 0  )
                     return null;
+                 System.out.println(" caster huhu : "+input);
                 return Integer.parseInt(input);
             }
         } catch (Exception e) {}
