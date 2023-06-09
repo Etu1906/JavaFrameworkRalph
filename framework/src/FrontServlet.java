@@ -23,6 +23,10 @@ import model.util.StringCaster;
 
 public class FrontServlet extends HttpServlet{
     HashMap<String , Mapping> MappingUrls = new HashMap<String  , Mapping>();
+    //class et ces attributs
+    HashMap<Class<?> , Field[] > ListFields = new HashMap<Class<?> , Field[] >();
+    //liste singleton
+    HashMap<Class<?> , Object > Singletons = new HashMap <Class<?> , Object > ();
     Vector<Class<?>> listpackage;
     String base ;
 
@@ -33,7 +37,7 @@ public class FrontServlet extends HttpServlet{
             MyPackage p=new MyPackage();
             listpackage =  p.getClasses( null  , "" );
             // toutes les methodes annotees
-            this.MappingUrls = Utilitaire.getAllMethod(listpackage, MappingUrls ) ; 
+            this.MappingUrls = Utilitaire.getAllMethod(listpackage, MappingUrls , ListFields , Singletons ) ; 
         }catch( Exception e ){
             e.printStackTrace();
         }
@@ -85,9 +89,9 @@ public class FrontServlet extends HttpServlet{
                 System.out.println(" classe field :  "+field.getType().getName());
                 Object  value = null;
                 System.out.println(" est tableau :  "+Utilitaire.estTableau( field.getType()));
-                //if( Utilitaire.estTableau( field.getType() ))
-                //	value = Utilitaire.creerTableau1D(  field.getType() , paramValues.length , paramValues ); 
-                //else
+                if( Utilitaire.estTableau( field.getType() ))
+                	value = Utilitaire.creerTableau1D(  field.getType() , paramValues.length , paramValues ); 
+                else
                 	StringCaster.cast(paramValues[0] , field.getType()   );
                 if( StringCaster.isFileUpload( field.getType() ) ){
                     System.out.println(" file upload yes ");
@@ -99,6 +103,8 @@ public class FrontServlet extends HttpServlet{
                         throw e;
                     }
                 }
+                System.out.println(" classe maintenant :  "+field.getType().getName());
+         	 System.out.println(" value :  " + value );
                 // appeler la methode set + parametre
                 result = Utilitaire.callMethodByName(object, method ,  field.getType()  ,  value  );                    
             }catch( NoSuchMethodException | NoSuchFieldException se ){
@@ -108,6 +114,7 @@ public class FrontServlet extends HttpServlet{
     }
 
     public ModelView getModelView( String className , String MethodName , HttpServletRequest req , Map<String, String[]> parameterMap )throws  ServletException,IOException , Exception{
+    	
         //instanciation de la classe 
         Class<?> clazz = Class.forName(className);
 
@@ -124,9 +131,11 @@ public class FrontServlet extends HttpServlet{
             String[] arguments = arg.argument();
             valueParameter = Utilitaire.setValueParam(  arguments , parameterMap , parameters );
         }
-
-        Object instanceClazz  = clazz.newInstance();
-
+		// creation de l'objet tout en verifiant si singleton
+        Object instanceClazz  = Utilitaire.Instanciation( clazz , Singletons , ListFields );
+		
+		System.out.println("Object : "+instanceClazz);
+		
         //appeler les setters
         setValue(instanceClazz, req , parameterMap);
 

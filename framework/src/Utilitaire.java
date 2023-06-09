@@ -6,6 +6,53 @@ import java.lang.reflect.*;
 
 public class Utilitaire {
 
+	public static Object getDefaultValue( Class<?> type ){
+		System.out.println(" type field default : "+type);
+		if( type == boolean.class )
+			return false;
+		if( type == byte.class )
+			return (byte) 0;
+		if (type == short.class)
+			return (short) 0;
+		if ( type == int.class )
+			return 0;
+		if ( type == float.class )
+			return 0;
+		if ( type == float.class )
+			return 0;
+		return null;
+	}
+
+	public static Object addDefaultValue( Object value , HashMap<Class<?> , Field[] > ListFields , Class<?> clazz )throws Exception{
+		Field[] fields = ListFields.get( clazz );
+		for( int i = 0 ; i != fields.length ; i++ ){
+			fields[i].setAccessible(true);
+			fields[i].set( value , getDefaultValue(fields[i].getType()) );
+		}
+		return value;
+	}
+
+	//verifier si la class doit etre un singleton
+	public static Object Instanciation( Class<?> clazz , HashMap<Class<?> , Object > Singletons , HashMap<Class<?> , Field[] > ListFields )throws Exception{
+		Object value = null;
+		//si oui
+		if( Singletons.containsKey( clazz ) ){
+			//s'il y a deja une instanciation
+			if( Singletons.get( clazz ) != null ){
+				//mettre les valeurs par defaut des attributs
+				value = Singletons.get( clazz ); 
+				value = Utilitaire.addDefaultValue( value , ListFields , clazz );
+				return value;
+			}
+			//1 ere instanciation
+			value = clazz.newInstance();
+			Singletons.put( clazz , value );
+			return value;
+		}
+		//si non
+		return clazz.newInstance();
+	}
+
    public static void setValueIfPrimitiv( Object value , Class<?> type , String input ){
    	System.out.println( " classe prim :  "+type.getName()    );
    	if( type.getName().compareToIgnoreCase("int") == 0 ){
@@ -35,11 +82,14 @@ public class Utilitaire {
         Object[] tableau = (Object[]) Array.newInstance(componentType, taille);
         String paramValues = "";
         // Assigner la valeur à chaque élément du tableau
-        for (int i = 0; i < taille; i++) {
-			paramValues = valeur[i];
-			setValueIfPrimitiv( tableau[i] ,  componentType.getComponentType() , paramValues );
+        for (int i = 0; i < taille; i++){
+		paramValues = valeur[i];
+		setValueIfPrimitiv( tableau[i] ,  componentType.getComponentType() , paramValues );
         }
-        
+         System.out.println(" tableau : "+tableau);
+         int[][] tabl = (int[][]) tableau;
+         System.out.println(" tabl :  "+tabl.length+"  " );
+         System.out.println(tabl[0].length); 
         return tableau;
     }
 
@@ -119,6 +169,9 @@ public class Utilitaire {
 
       public static <T> Object callMethodByName(Object object, String methodName ,  Class<T> parameterType,     Object parameterValue) throws NoSuchMethodException , Exception {
             try{
+            	System.out.println( " fonction antsoina : "+methodName+" paramaetre : "+parameterType.getName() );
+            	if( parameterValue != null ) 
+            		System.out.println( "parametre : "+parameterValue.getClass().getName() );
                 Method method = object.getClass().getMethod(methodName, parameterType);
                 method.invoke(object, parameterValue);
                 return object;
@@ -140,21 +193,26 @@ public class Utilitaire {
         }
     }
 
-    public static  HashMap<String , Mapping> getAllMethodInClass( Class<?> clazz , HashMap<String , Mapping> MappingUrls ){
+    public static  HashMap<String , Mapping> getAllMethodInClass( Class<?> clazz , HashMap<String , Mapping> MappingUrls , HashMap<Class<?> , Field[] > ListFields ){
         java.lang.reflect.Method[] methods = clazz.getDeclaredMethods();
         for (java.lang.reflect.Method method : methods) {
             Urls annotation = method.getAnnotation(Urls.class);
             if (annotation != null) {
+            	ListFields.put( clazz , clazz.getDeclaredFields() );
                 Mapping mapping = new Mapping( clazz.getName() , method.getName()  );
                 MappingUrls.put( annotation.url() , mapping );
             }
         }
         return MappingUrls;
     }
+    
 
-    public static  HashMap<String , Mapping> getAllMethod( Vector<Class<?>> listpackage , HashMap<String , Mapping> MappingUrls  ){
+    public static  HashMap<String , Mapping> getAllMethod( Vector<Class<?>> listpackage , HashMap<String , Mapping> MappingUrls , HashMap<Class<?> , Field[] > ListFields , HashMap<Class<?> , Object > Singletons  ){
         for (Class<?> clazz : listpackage) {
-            getAllMethodInClass( clazz , MappingUrls );   
+        	Scope singleton = clazz.getAnnotation(Scope.class);
+        	if( singleton != null )
+        		Singletons.put( clazz , null );
+            getAllMethodInClass( clazz , MappingUrls , ListFields );   
         }
         return MappingUrls;
     }
