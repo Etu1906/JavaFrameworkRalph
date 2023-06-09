@@ -10,6 +10,7 @@ import model.*;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 
+@Scope(name="singleton")
 public class Emp {
 
     String nom;
@@ -17,6 +18,7 @@ public class Emp {
     Date data;
     FileUpload fichier;
     int[] check;
+    static int operation;
     
     public int[] getCheck(){
     	return check;
@@ -49,12 +51,22 @@ public class Emp {
     public Emp(String nom) {
         this.nom = nom;
     }
+    
+	@Urls( url="verif-emp.do" )
+    public ModelView verificationOperation(){
+    	operation += 1;
+        ModelView view = new ModelView( "verifemp.jsp" );
+        view.addItem( "operation" , operation );
+        return view;
+    }
 
     @Urls( url="liste.do")
     public ModelView getList(){
         ModelView view = new ModelView( "liste.jsp" );
         return view;
     }
+    
+    
 
     @Urls( url="details.do" )
     @Argument(argument={"prenom","id"} )
