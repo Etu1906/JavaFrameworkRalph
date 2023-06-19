@@ -21,6 +21,7 @@ import etu1906.framework.Mapping;
 import etu1906.framework.view.ModelView2;
 import model.util.Utilitaire;
 import model.util.StringCaster;
+import model.Session;
 
 public class FrontServlet extends HttpServlet{
     HashMap<String , Mapping> MappingUrls = new HashMap<String  , Mapping>();
@@ -117,6 +118,22 @@ public class FrontServlet extends HttpServlet{
             }
         }
     }
+    
+    
+    // maka valeur anaty session
+    public static HashMap<String , Object> getSessionAttributes( HttpServletRequest req ) {
+        HttpSession session = req.getSession();
+        HashMap<String, Object> attributes = new HashMap<>();
+        Enumeration<String> attributeNames = session.getAttributeNames();
+        
+        while (attributeNames.hasMoreElements()) {
+            String attributeName = attributeNames.nextElement();
+            Object attributeValue = session.getAttribute(attributeName);
+            attributes.put(attributeName, attributeValue);
+        }
+        
+        return attributes;
+    }
 
     public ModelView2 getModelView2( String className , String MethodName , HttpServletRequest req , Map<String, String[]> parameterMap )throws  ServletException,IOException , Exception{
     	
@@ -130,7 +147,7 @@ public class FrontServlet extends HttpServlet{
         Parameter[] parameters = Method.getParameters();
 
         Object[] valueParameter = Utilitaire.setValueParam( parameterMap , parameters );
-
+		
         if( Method.isAnnotationPresent(Argument.class) ){
             Argument arg = Method.getAnnotation( Argument.class );
             String[] arguments = arg.argument();
@@ -138,6 +155,15 @@ public class FrontServlet extends HttpServlet{
         }
 		// creation de l'objet tout en verifiant si singleton
         Object instanceClazz  = Utilitaire.Instanciation( clazz , Singletons , ListFields );
+		
+		if( Method.isAnnotationPresent(Session.class) ){
+			System.out.println(" session present ");
+	        HashMap<String , Object> session = getSessionAttributes( req );
+	        Field field = instanceClazz.getClass().getDeclaredField("session");
+        	field.setAccessible(true);
+        	field.set(instanceClazz, session);
+        	System.out.println("session values : "+field.get( instanceClazz ));
+		}
 		
 		System.out.println("Object : "+instanceClazz);
 		

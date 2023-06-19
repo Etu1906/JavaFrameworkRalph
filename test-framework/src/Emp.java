@@ -20,6 +20,8 @@ public class Emp {
     FileUpload fichier;
     int[] check;
     static int operation;
+    HashMap<String , Object> session = new HashMap<String , Object>() ;
+    
     
     public int[] getCheck(){
     	return check;
@@ -54,15 +56,17 @@ public class Emp {
     }
     
 	@Urls( url="authentifResult.do" )
-	@Auth(profil="admin")
+	@Session
     public ModelView2 AuthentifResult(){
         ModelView2 view = new ModelView2( "verifemp.jsp" );
-        view.addItem( "operation" , operation );
+        view.addItem( "operation" , session.get("huhu") );
         //view.addSessionAttribute( "Isconnected" , true );
+        System.out.println( "huhu value : "+  session.get("huhu") );
         return view;
     }
     
 	@Urls( url="authentif.do" )
+	@Session
     public ModelView2 AuthentifTest(){
     	//HashMap<String , Object> huhu = new HashMap<String , Object>();
     	//huhu.put( "Isconnected" , true );
@@ -70,6 +74,7 @@ public class Emp {
         ModelView2 view = new ModelView2( "verifemp.jsp" ) ;
         view.addItem( "operation" , operation );
         view.addSessionAttribute( "Isconnected" , true );
+		view.addSessionAttribute( "huhu" , 5 );
         //view.getSession().put(  );
         return view;
     }
