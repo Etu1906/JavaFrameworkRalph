@@ -4,19 +4,28 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
 http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
 version="2.4">
-    <servlet>
-        <servlet-name>FrontServlet</servlet-name>
-        <servlet-class>etu1906.framework.servlet.FrontServlet</servlet-class>
-        <init-param>
-            <param-name>base_url</param-name>
-            <param-value>http://localhost:1325/framework6/</param-value>
-            <description>url</description>
-        </init-param>
-        <multipart-config>
-            <max-file-size>500000</max-file-size>
-            <max-request-size>500000</max-request-size>
-        </multipart-config>
-    </servlet>
+	<servlet>
+	    <servlet-name>FrontServlet</servlet-name>
+	    <servlet-class>etu1906.framework.servlet.FrontServlet</servlet-class>
+	    
+	    <init-param>
+		<param-name>base_url</param-name>
+		<param-value>http://localhost:1325/framework6/</param-value>
+		<description>url</description>
+	    </init-param>
+	    
+	    <init-param>
+		<param-name>sessionName</param-name>
+		<param-value>Isconnected</param-value>
+		<description>nom de la session</description>
+	    </init-param>
+	    
+	    <multipart-config>
+		<max-file-size>500000</max-file-size>
+		<max-request-size>500000</max-request-size>
+	    </multipart-config>
+	</servlet>
+
 
     <servlet-mapping>
     <servlet-name>FrontServlet</servlet-name>

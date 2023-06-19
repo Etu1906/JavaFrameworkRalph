@@ -193,13 +193,22 @@ public class Utilitaire {
         }
     }
 
+	public static String addAuthentification(Auth authentification ){
+		if( authentification != null )
+			return authentification.profil();
+		return null;
+	}
+
     public static  HashMap<String , Mapping> getAllMethodInClass( Class<?> clazz , HashMap<String , Mapping> MappingUrls , HashMap<Class<?> , Field[] > ListFields ){
         java.lang.reflect.Method[] methods = clazz.getDeclaredMethods();
         for (java.lang.reflect.Method method : methods) {
             Urls annotation = method.getAnnotation(Urls.class);
+            //authentification par methode
+            Auth authentification = method.getAnnotation(Auth.class);
+            String auth = addAuthentification( authentification );
             if (annotation != null) {
             	ListFields.put( clazz , clazz.getDeclaredFields() );
-                Mapping mapping = new Mapping( clazz.getName() , method.getName()  );
+                Mapping mapping = new Mapping( clazz.getName() , method.getName() , auth );
                 MappingUrls.put( annotation.url() , mapping );
             }
         }
