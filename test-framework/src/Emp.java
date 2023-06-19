@@ -4,6 +4,7 @@ package model.haha;
 import etu1906.framework.file.FileUpload;
 import java.util.List;
 import java.util.Vector;
+import java.util.HashMap;
 import java.sql.*;
 import etu1906.framework.view.*;
 import model.*;
@@ -52,26 +53,46 @@ public class Emp {
         this.nom = nom;
     }
     
-	@Urls( url="verif-emp.do" )
-    public ModelView verificationOperation(){
+	@Urls( url="authentifResult.do" )
+	@Auth(profil="admin")
+    public ModelView2 AuthentifResult(){
+        ModelView2 view = new ModelView2( "verifemp.jsp" );
+        view.addItem( "operation" , operation );
+        //view.addSessionAttribute( "Isconnected" , true );
+        return view;
+    }
+    
+	@Urls( url="authentif.do" )
+    public ModelView2 AuthentifTest(){
+    	//HashMap<String , Object> huhu = new HashMap<String , Object>();
+    	//huhu.put( "Isconnected" , true );
+    	//huhu.put( "admin" , true );
+        ModelView2 view = new ModelView2( "verifemp.jsp" ) ;
+        view.addItem( "operation" , operation );
+        view.addSessionAttribute( "Isconnected" , true );
+        //view.getSession().put(  );
+        return view;
+    }
+    
+    @Urls( url="verif-emp.do" )
+    public ModelView2 verificationOperation(){
     	operation += 1;
-        ModelView view = new ModelView( "verifemp.jsp" );
+        ModelView2 view = new ModelView2( "verifemp.jsp" );
         view.addItem( "operation" , operation );
         return view;
     }
 
     @Urls( url="liste.do")
-    public ModelView getList(){
-        ModelView view = new ModelView( "liste.jsp" );
+    public ModelView2 getList(){
+        ModelView2 view = new ModelView2( "liste.jsp" );
         return view;
     }
-    
     
 
     @Urls( url="details.do" )
     @Argument(argument={"prenom","id"} )
-    public ModelView getDetails( String prenom , Integer id ){
-        ModelView view = new ModelView( "details.jsp" );
+    public ModelView2 getDetails( String prenom , Integer id ){
+        ModelView2 view = new ModelView2( "details.jsp" );
         view.addItem( "prenom" , prenom );
         System.out.println( " id :  "+id );
         return view;
@@ -106,8 +127,8 @@ public class Emp {
     }
 
     @Urls( url="save.do" )
-    public ModelView save(){
-        ModelView view = new ModelView( "save.jsp" );
+    public ModelView2 save(){
+        ModelView2 view = new ModelView2( "save.jsp" );
         System.out.println(" nom :  "+getNom()); 
         System.out.println(" fichier : "+getFichier().toString());
         // System.out.println(" prenom :  "+getPrenom()); 
@@ -124,15 +145,15 @@ public class Emp {
     }
 
     @Urls( url="form.do" )
-    public ModelView form(){
-        ModelView view = new ModelView( "form.jsp" );
+    public ModelView2 form(){
+        ModelView2 view = new ModelView2( "form.jsp" );
         return view;
     }
 
     @Urls( url="emp-all.do" )
-    public ModelView findAll(){
+    public ModelView2 findAll(){
         System.out.println(" bonjuour ");
-        ModelView view = new ModelView( "list-emp.jsp" );
+        ModelView2 view = new ModelView2( "list-emp.jsp" );
         Vector<Emp> l = prenommp();
         view.addItem("lst", l);
         return view;

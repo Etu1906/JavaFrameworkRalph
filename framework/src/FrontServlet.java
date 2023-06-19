@@ -15,9 +15,10 @@ import model.Argument;
 import model.util.*; 
 import java.lang.reflect.*;
 import java.util.Collection;
+import java.util.Enumeration;
 
 import etu1906.framework.Mapping;
-import etu1906.framework.view.ModelView;
+import etu1906.framework.view.ModelView2;
 import model.util.Utilitaire;
 import model.util.StringCaster;
 
@@ -29,11 +30,15 @@ public class FrontServlet extends HttpServlet{
     HashMap<Class<?> , Object > Singletons = new HashMap <Class<?> , Object > ();
     Vector<Class<?>> listpackage;
     String base ;
+    String connected;
 
     public void init() throws ServletException {
         try{
             //prendre l'url du projet
             base = this.getInitParameter("base_url");
+            System.out.println(" base init "+base);
+            //est connecte
+            connected = this.getInitParameter("sessionName");
             MyPackage p=new MyPackage();
             listpackage =  p.getClasses( null  , "" );
             // toutes les methodes annotees
@@ -113,7 +118,7 @@ public class FrontServlet extends HttpServlet{
         }
     }
 
-    public ModelView getModelView( String className , String MethodName , HttpServletRequest req , Map<String, String[]> parameterMap )throws  ServletException,IOException , Exception{
+    public ModelView2 getModelView2( String className , String MethodName , HttpServletRequest req , Map<String, String[]> parameterMap )throws  ServletException,IOException , Exception{
     	
         //instanciation de la classe 
         Class<?> clazz = Class.forName(className);
@@ -149,18 +154,18 @@ public class FrontServlet extends HttpServlet{
         //invocation
         Object result = Method.invoke(instanceClazz ,valueParameter );
 
-        // cast en modelView
-        if( result instanceof ModelView ){
-            ModelView modelViewResult = (ModelView) result;
-            return  modelViewResult;
+        // cast en ModelView2
+        if( result instanceof ModelView2 ){
+            ModelView2 ModelView2Result = (ModelView2) result;
+            return  ModelView2Result;
         }
-        throw new Exception(" erreur lors de l'instanciation de la ModelView ");
+        throw new Exception(" erreur lors de l'instanciation de la ModelView2 ");
     }
 
-    public void setAttribute( ModelView modelViewResult , HttpServletRequest req )throws ServletException,IOException,Exception{
+    public void setAttribute( ModelView2 ModelView2Result , HttpServletRequest req )throws ServletException,IOException,Exception{
         // iteration data
-        if( modelViewResult.getData() != null ){
-            for( Map.Entry<String , Object> entry : modelViewResult.getData().entrySet() ){
+        if( ModelView2Result.getData() != null ){
+            for( Map.Entry<String , Object> entry : ModelView2Result.getData().entrySet() ){
                 System.out.println( "key :  "+entry.getKey()+" value : "+(entry.getValue()) );
                 req.setAttribute( entry.getKey() , entry.getValue() );
             }
@@ -195,11 +200,53 @@ public class FrontServlet extends HttpServlet{
         return parameterMap;
     }
 
+	protected void verifySession( String profil , HttpSession session )throws Exception{
+		//verification connexion
+		if (session.getAttribute(connected) == null)
+			throw new Exception(" vous n'etes pas connectee ");
+		//verification role
+		if( profil.compareToIgnoreCase("") != 0 ){
+			if (session.getAttribute(profil) == null)
+				throw new Exception("Authentification incorrecte");
+		}
+	}
+
+	protected void verifyAuthentification( String profil , HttpSession session )throws Exception{
+		if( profil != null )
+			verifySession( profil , session );
+	}
+	
+	protected void printSession( HttpSession session  ){
+		System.out.println(" print session ");
+		// Récupérez les noms des attributs de session
+		Enumeration<String> attributeNames = session.getAttributeNames();
+
+		// Parcourez les attributs de session et affichez leurs valeurs
+		while (attributeNames.hasMoreElements()) {
+			String attributeName = attributeNames.nextElement();
+			Object attributeValue = session.getAttribute(attributeName);
+			System.out.println("Attribute: " + attributeName + ", Value: " + attributeValue);
+		}
+	}
+	
+	//add session value
+	protected void addSession( HashMap<String, Object> sessionData , HttpSession session )throws Exception{
+		for (Map.Entry<String, Object> entry : sessionData.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			System.out.println(" attribute : session ( "+key+" , "+value+" ) ");
+			session.setAttribute(key, value);
+		}
+		printSession( session );
+	}
+
     protected void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException,Exception{
         System.out.println(" process request ");
         PrintWriter out = res.getWriter();
+        HttpSession session = req.getSession();
         try{
-            String url = req.getRequestURL().toString();  
+            String url = req.getRequestURL().toString();
+             System.out.println(" url : "+url+" et base :  "+base);
             out.println(url);
 
             String value = Utilitaire.getUrl( url , base );
@@ -208,6 +255,10 @@ public class FrontServlet extends HttpServlet{
 
             String className = MappingUrls.get(value).getClassName();
             String MethodName = MappingUrls.get(value).getMethod();
+            String profil= MappingUrls.get(value).getProfil();
+            
+			//verification authentificationn
+			verifyAuthentification( profil , session );
 
             Map<String, String[]> parameterMap = new HashMap<>();
             // Vérifiez si des fichiers ont été téléchargés
@@ -217,15 +268,18 @@ public class FrontServlet extends HttpServlet{
                 // les parametres de la requete
                 parameterMap = req.getParameterMap();
 
-            // instanciation de la modelView
-            ModelView modelViewResult = getModelView( className , MethodName , req , parameterMap);
+            // instanciation de la ModelView2
+            ModelView2 ModelView2Result = getModelView2( className , MethodName , req , parameterMap);
+
+			//ajouter a la session
+			addSession( ModelView2Result.getSession() , session );
 
             // donner Attribut 
-            setAttribute( modelViewResult , req );
+            setAttribute( ModelView2Result , req );
 
-            // System.out.println(" view :  "+modelViewResult.getView());
+            // System.out.println(" view :  "+ModelView2Result.getView());
 
-            RequestDispatcher dispat = req.getRequestDispatcher(modelViewResult.getView());
+            RequestDispatcher dispat = req.getRequestDispatcher(ModelView2Result.getView());
 
             dispat.forward(req,res);
 
