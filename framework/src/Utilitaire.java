@@ -8,6 +8,16 @@ import com.google.gson.Gson;
 
 public class Utilitaire {
 
+	public static String  ToJSON( Object hashMap )throws Exception{
+		try{
+			Gson gson = new Gson();
+			String jsonString = gson.toJson(hashMap);
+			return jsonString;
+		}catch( Exception e ){
+			throw e;
+		}
+	}
+
 	public static String  HashMapToJSON( HashMap<String , Object> hashMap )throws Exception{
 		try{
 			System.out.println(" key : ");
