@@ -3,8 +3,23 @@ import model.*;
 import java.util.*;
 import  etu1906.framework.*;
 import java.lang.reflect.*;
+import com.google.gson.Gson;
+
 
 public class Utilitaire {
+
+	public static String  HashMapToJSON( HashMap<String , Object> hashMap )throws Exception{
+		try{
+			System.out.println(" key : ");
+			Gson gson = new Gson();
+			System.out.println(" key : ");
+			String jsonString = gson.toJson(hashMap);
+			return jsonString;
+		}catch( Exception e ){
+			throw e;
+		}
+	}
+
 
 	public static Object getDefaultValue( Class<?> type ){
 		System.out.println(" type field default : "+type);

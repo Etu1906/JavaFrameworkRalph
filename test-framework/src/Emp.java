@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.sql.*;
 import etu1906.framework.view.*;
 import model.*;
+import model.session.Session_ctrl;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 
 @Scope(name="singleton")
-public class Emp {
-
+public class Emp extends Session_ctrl {
     String nom;
     float idprenom;
     Date data;
@@ -21,7 +21,6 @@ public class Emp {
     int[] check;
     static int operation;
     HashMap<String , Object> session = new HashMap<String , Object>() ;
-    
     
     public int[] getCheck(){
     	return check;
@@ -57,6 +56,7 @@ public class Emp {
     
 	@Urls( url="authentifResult.do" )
 	@Session
+	@Auth( profil="admin" )
     public ModelView2 AuthentifResult(){
         ModelView2 view = new ModelView2( "verifemp.jsp" );
         view.addItem( "operation" , session.get("huhu") );
@@ -65,17 +65,28 @@ public class Emp {
         return view;
     }
     
+    
+    @Urls( url = "json.do" )
+    public ModelView2 jsonRetrun(){
+		ModelView2 view = new ModelView2( "none.jsp" ) ;
+		view.setJSON( true );
+    	view.addItem( "huhu" , new Emp() );
+	 	view.addItem("point" , 5); 
+	 	view.addItem("bool" , false);
+	 	System.out.println( " value json :  "+view.getData() );
+	 	return view;
+    }
+    
 	@Urls( url="authentif.do" )
 	@Session
     public ModelView2 AuthentifTest(){
-    	//HashMap<String , Object> huhu = new HashMap<String , Object>();
-    	//huhu.put( "Isconnected" , true );
-    	//huhu.put( "admin" , true );
         ModelView2 view = new ModelView2( "verifemp.jsp" ) ;
         view.addItem( "operation" , operation );
-        view.addSessionAttribute( "Isconnected" , true );
-		view.addSessionAttribute( "huhu" , 5 );
-        //view.getSession().put(  );
+        //view.addSessionAttribute( "Isconnected" , true );
+		addSessionAttribute( "huhu" , 5 );
+		addSessionAttribute( "admin" , true );
+		addSessionAttribute( "Isconnected" , true );
+		System.out.println(" adresse :  "+this);
         return view;
     }
     

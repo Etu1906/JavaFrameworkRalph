@@ -5,11 +5,19 @@ public class ModelView2{
     private String view;
     private HashMap<String , Object> data = new HashMap<String , Object>();
 	private HashMap<String , Object> session = new HashMap<String , Object>();
-
+	private boolean isJSON = false;
     public ModelView2(String view) {
         setView(view);
     }
     
+    public boolean isJSON(){
+    	return isJSON;
+    }
+    
+	public void setJSON( boolean json ){
+		this.isJSON = json;
+	}
+		
     public ModelView2(String view , HashMap<String , Object> session) {
         setView(view);
        this.session = session;
