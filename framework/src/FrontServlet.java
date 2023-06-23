@@ -16,12 +16,13 @@ import model.util.*;
 import java.lang.reflect.*;
 import java.util.Collection;
 import java.util.Enumeration;
-
+import model.session.Session_ctrl;
 import etu1906.framework.Mapping;
 import etu1906.framework.view.ModelView2;
 import model.util.Utilitaire;
 import model.util.StringCaster;
 import model.Session;
+import com.google.gson.Gson;
 
 public class FrontServlet extends HttpServlet{
     HashMap<String , Mapping> MappingUrls = new HashMap<String  , Mapping>();
@@ -134,11 +135,25 @@ public class FrontServlet extends HttpServlet{
         
         return attributes;
     }
+    
+    public void addSessionAttribute( HttpSession httpsession , Object instanceClazz ){
+		try{	
+			Field session_field = Session_ctrl.class.getDeclaredField("Session_value");
+			session_field.setAccessible(true);
+			HashMap<String , Object> list_session = (HashMap<String , Object>) session_field.get( instanceClazz );
+			System.out.println(" adresse 2 :  "+ session_field.get( instanceClazz )+" value ");
+			//ajouter a la session
+			addSession( list_session , httpsession );
+		}catch( Exception e ){
+			e.printStackTrace();
+		}
+    } 
 
     public ModelView2 getModelView2( String className , String MethodName , HttpServletRequest req , Map<String, String[]> parameterMap )throws  ServletException,IOException , Exception{
     	
         //instanciation de la classe 
         Class<?> clazz = Class.forName(className);
+        HttpSession httpsession = req.getSession();
 
         // prendre la méthode 
         Method Method = Utilitaire.getMethod( MethodName , clazz );
@@ -153,6 +168,7 @@ public class FrontServlet extends HttpServlet{
             String[] arguments = arg.argument();
             valueParameter = Utilitaire.setValueParam(  arguments , parameterMap , parameters );
         }
+        
 		// creation de l'objet tout en verifiant si singleton
         Object instanceClazz  = Utilitaire.Instanciation( clazz , Singletons , ListFields );
 		
@@ -180,12 +196,16 @@ public class FrontServlet extends HttpServlet{
         //invocation
         Object result = Method.invoke(instanceClazz ,valueParameter );
 
+
+		addSessionAttribute( httpsession , instanceClazz );
         // cast en ModelView2
         if( result instanceof ModelView2 ){
             ModelView2 ModelView2Result = (ModelView2) result;
             return  ModelView2Result;
         }
         throw new Exception(" erreur lors de l'instanciation de la ModelView2 ");
+        
+        
     }
 
     public void setAttribute( ModelView2 ModelView2Result , HttpServletRequest req )throws ServletException,IOException,Exception{
@@ -272,8 +292,8 @@ public class FrontServlet extends HttpServlet{
         HttpSession session = req.getSession();
         try{
             String url = req.getRequestURL().toString();
-             System.out.println(" url : "+url+" et base :  "+base);
-            out.println(url);
+            System.out.println(" url : "+url+" et base :  "+base);
+            //out.println(url);
 
             String value = Utilitaire.getUrl( url , base );
 
@@ -283,7 +303,7 @@ public class FrontServlet extends HttpServlet{
             String MethodName = MappingUrls.get(value).getMethod();
             String profil= MappingUrls.get(value).getProfil();
             
-			//verification authentificationn
+			//verification authentification
 			verifyAuthentification( profil , session );
 
             Map<String, String[]> parameterMap = new HashMap<>();
@@ -297,17 +317,26 @@ public class FrontServlet extends HttpServlet{
             // instanciation de la ModelView2
             ModelView2 ModelView2Result = getModelView2( className , MethodName , req , parameterMap);
 
-			//ajouter a la session
-			addSession( ModelView2Result.getSession() , session );
+			if( ModelView2Result.isJSON() == true ){
+				 HashMap<String , Object> hashMap = ModelView2Result.getData(); 
+				System.out.print( "nakato hhii  huhu: "+ModelView2Result.getData() );	
+				String jsonString = Utilitaire.HashMapToJSON( ModelView2Result.getData() );
+				System.out.print( jsonString );
+				res.setContentType("application/json");
+				res.setCharacterEncoding("UTF-8");
+				out.print( jsonString );
+					
+			}else{
 
-            // donner Attribut 
-            setAttribute( ModelView2Result , req );
+		        // donner Attribut 
+		        setAttribute( ModelView2Result , req );
 
-            // System.out.println(" view :  "+ModelView2Result.getView());
+		        // System.out.println(" view :  "+ModelView2Result.getView());
 
-            RequestDispatcher dispat = req.getRequestDispatcher(ModelView2Result.getView());
+		        RequestDispatcher dispat = req.getRequestDispatcher(ModelView2Result.getView());
 
-            dispat.forward(req,res);
+		        dispat.forward(req,res);
+	        }
 
         }catch( Exception e ){
             e.printStackTrace();
