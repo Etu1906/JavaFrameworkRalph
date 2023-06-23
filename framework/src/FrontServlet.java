@@ -22,6 +22,7 @@ import etu1906.framework.view.ModelView2;
 import model.util.Utilitaire;
 import model.util.StringCaster;
 import model.Session;
+import model.Json;
 import com.google.gson.Gson;
 
 public class FrontServlet extends HttpServlet{
@@ -33,7 +34,7 @@ public class FrontServlet extends HttpServlet{
     Vector<Class<?>> listpackage;
     String base ;
     String connected;
-
+	boolean isJson;
     public void init() throws ServletException {
         try{
             //prendre l'url du projet
@@ -149,7 +150,7 @@ public class FrontServlet extends HttpServlet{
 		}
     } 
 
-    public ModelView2 getModelView2( String className , String MethodName , HttpServletRequest req , Map<String, String[]> parameterMap )throws  ServletException,IOException , Exception{
+    public Object getModelView2( String className , String MethodName , HttpServletRequest req , Map<String, String[]> parameterMap )throws  ServletException,IOException , Exception{
     	
         //instanciation de la classe 
         Class<?> clazz = Class.forName(className);
@@ -168,7 +169,10 @@ public class FrontServlet extends HttpServlet{
             String[] arguments = arg.argument();
             valueParameter = Utilitaire.setValueParam(  arguments , parameterMap , parameters );
         }
-        
+        System.out.println(" json annotation :  "+Method.isAnnotationPresent( Json.class ));
+        if( Method.isAnnotationPresent( Json.class ) )
+        	isJson = true;				
+	
 		// creation de l'objet tout en verifiant si singleton
         Object instanceClazz  = Utilitaire.Instanciation( clazz , Singletons , ListFields );
 		
@@ -203,7 +207,8 @@ public class FrontServlet extends HttpServlet{
             ModelView2 ModelView2Result = (ModelView2) result;
             return  ModelView2Result;
         }
-        throw new Exception(" erreur lors de l'instanciation de la ModelView2 ");
+        System.out.println("isjson : "+isJson);
+		return result;
         
         
     }
@@ -307,36 +312,48 @@ public class FrontServlet extends HttpServlet{
 			verifyAuthentification( profil , session );
 
             Map<String, String[]> parameterMap = new HashMap<>();
+            
             // Vérifiez si des fichiers ont été téléchargés
             if (isEnctypeForm( req )) {
                 parameterMap = getParamForEnctypeForm( parameterMap , req );
             }else 
                 // les parametres de la requete
                 parameterMap = req.getParameterMap();
+               	Object resultMethod = getModelView2( className , MethodName , req , parameterMap);
+               	System.out.println(" after :  "+isJson);
+               	if( isJson == false ){
+				    // instanciation de la ModelView2
+				    ModelView2 ModelView2Result = (ModelView2) resultMethod;
+					if( ModelView2Result.isJSON() == true ){
+						 HashMap<String , Object> hashMap = ModelView2Result.getData(); 
+						System.out.print( "nakato hhii  huhu: "+ModelView2Result.getData() );	
+						String jsonString = Utilitaire.HashMapToJSON( ModelView2Result.getData() );
+						System.out.print( jsonString );
+						res.setContentType("application/json");
+						res.setCharacterEncoding("UTF-8");
+						out.print( jsonString );
+							
+					}else{
 
-            // instanciation de la ModelView2
-            ModelView2 ModelView2Result = getModelView2( className , MethodName , req , parameterMap);
+						// donner Attribut 
+						setAttribute( ModelView2Result , req );
 
-			if( ModelView2Result.isJSON() == true ){
-				 HashMap<String , Object> hashMap = ModelView2Result.getData(); 
-				System.out.print( "nakato hhii  huhu: "+ModelView2Result.getData() );	
-				String jsonString = Utilitaire.HashMapToJSON( ModelView2Result.getData() );
-				System.out.print( jsonString );
-				res.setContentType("application/json");
-				res.setCharacterEncoding("UTF-8");
-				out.print( jsonString );
-					
-			}else{
+						// System.out.println(" view :  "+ModelView2Result.getView());
 
-		        // donner Attribut 
-		        setAttribute( ModelView2Result , req );
+						RequestDispatcher dispat = req.getRequestDispatcher(ModelView2Result.getView());
 
-		        // System.out.println(" view :  "+ModelView2Result.getView());
-
-		        RequestDispatcher dispat = req.getRequestDispatcher(ModelView2Result.getView());
-
-		        dispat.forward(req,res);
-	        }
+						dispat.forward(req,res);
+					}
+				}else{
+					isJson = false;
+					System.out.println(" json tokoa ");
+					Object method_value =  resultMethod;
+					String jsonString = Utilitaire.ToJSON( method_value );
+					System.out.print( jsonString );
+					res.setContentType("application/json");
+					res.setCharacterEncoding("UTF-8");
+					out.print( jsonString );
+				}
 
         }catch( Exception e ){
             e.printStackTrace();

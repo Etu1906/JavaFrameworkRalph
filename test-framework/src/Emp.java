@@ -49,9 +49,21 @@ public class Emp extends Session_ctrl {
     public Emp(){
 
     }
+    
+	public Emp( String nom , float idprenom ){
+		setNom(nom);
+		setIdprenom( idprenom );
+    }
 
     public Emp(String nom) {
         this.nom = nom;
+    }
+    
+    @Json
+	@Urls( url="ObjectJson.do" )
+    public Emp toJson(){
+    	Emp employe = new Emp( "Steave" , 1 );
+    	return employe;
     }
     
 	@Urls( url="authentifResult.do" )
