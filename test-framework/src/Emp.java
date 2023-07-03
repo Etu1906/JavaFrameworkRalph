@@ -77,6 +77,44 @@ public class Emp extends Session_ctrl {
         return view;
     }
     
+	@Urls( url = "addsession.do" )
+	@Session
+    public ModelView2 addsess(){
+    	System.out.println( "add session" );
+		ModelView2 view = new ModelView2( "none.jsp" ) ;
+		addSessionAttribute( "huhu" , 5 );
+		addSessionAttribute( "haha" , 5 );
+	 	return view;
+    }
+    
+    	
+	@Urls( url = "remove.do" )
+	@Session
+    public ModelView2 remove(){
+    	System.out.println( "remove" );
+		ModelView2 view = new ModelView2( "none.jsp" ) ;
+		System.out.println("haha value : "+Sessionget("haha"));
+		addSessionDestroy("haha");
+	 	return view;
+    }
+    
+	@Urls( url = "invalidate.do" )
+	@Session
+    public ModelView2 invalid(){
+    	System.out.println( "innvalidate" );
+		ModelView2 view = new ModelView2( "none.jsp" ) ;
+		System.out.println("haha value : "+Sessionget("haha"));
+		view.setInvalidate( true );
+	 	return view;
+    }
+    
+	@Urls( url = "verifySession.do" )
+	@Session
+    public ModelView2 verifySession(){
+		ModelView2 view = new ModelView2( "none.jsp" ) ;
+		System.out.println("huhu value verify session : "+Sessionget("huhu"));
+	 	return view;
+    }
     
     @Urls( url = "json.do" )
     public ModelView2 jsonRetrun(){

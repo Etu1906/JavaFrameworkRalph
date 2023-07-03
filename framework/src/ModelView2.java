@@ -6,6 +6,7 @@ public class ModelView2{
     private HashMap<String , Object> data = new HashMap<String , Object>();
 	private HashMap<String , Object> session = new HashMap<String , Object>();
 	private boolean isJSON = false;
+	private boolean invalidate = false;
     public ModelView2(String view) {
         setView(view);
     }
@@ -45,7 +46,12 @@ public class ModelView2{
     public HashMap<String, Object> getData() {
         return data;
     }
-
+	public boolean isInvalidate(){
+		return invalidate;
+	}
+	public void setInvalidate( boolean inv ){
+		this.invalidate = inv;
+	}
     public void setData(HashMap<String, Object> data) {
         this.data = data;
     }

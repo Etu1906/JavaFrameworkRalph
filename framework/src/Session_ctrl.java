@@ -22,6 +22,7 @@ public class Session_ctrl{
 	
 	public void addSessionDestroy( String key ){
 		Session_destroy.add( key );
+		Session_value.remove( key );
 	}
 	
 }
