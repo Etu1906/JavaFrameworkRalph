@@ -137,10 +137,23 @@ public class FrontServlet extends HttpServlet{
         return attributes;
     }
     
+    public void destroyAttribute( Vector<String> l_destroy , HttpSession httpsession ){
+    	for( int i = 0 ; i != l_destroy.size() ; i++ ){
+    		System.out.println("removeAttribute("+l_destroy.get(i)+")");
+    		httpsession.removeAttribute(l_destroy.get(i));
+    	}
+    }
+    
     public void addSessionAttribute( HttpSession httpsession , Object instanceClazz ){
 		try{	
+			//manampy anaty session
 			Field session_field = Session_ctrl.class.getDeclaredField("Session_value");
+			//destroy
+			Field session_destroy = Session_ctrl.class.getDeclaredField("Session_destroy");
 			session_field.setAccessible(true);
+			session_destroy.setAccessible(true);
+			Vector<String> lis_destroy = (Vector<String>) session_destroy.get( instanceClazz );
+			destroyAttribute( lis_destroy , httpsession );
 			HashMap<String , Object> list_session = (HashMap<String , Object>) session_field.get( instanceClazz );
 			System.out.println(" adresse 2 :  "+ session_field.get( instanceClazz )+" value ");
 			//ajouter a la session
@@ -205,6 +218,9 @@ public class FrontServlet extends HttpServlet{
         // cast en ModelView2
         if( result instanceof ModelView2 ){
             ModelView2 ModelView2Result = (ModelView2) result;
+	   		if( ModelView2Result.isInvalidate() == true ){
+					invalidate( httpsession , instanceClazz );
+		    }
             return  ModelView2Result;
         }
         System.out.println("isjson : "+isJson);
@@ -290,6 +306,16 @@ public class FrontServlet extends HttpServlet{
 		}
 		printSession( session );
 	}
+	
+	//invalidation
+	protected void invalidate( HttpSession session , Object instanceClazz )throws Exception{
+    	Field session_field = Session_ctrl.class.getDeclaredField("Session_value");
+		session_field.setAccessible(true);
+		HashMap<String , Object> list_session = (HashMap<String , Object>) session_field.get( instanceClazz );
+		list_session.clear();
+    	System.out.print("invalidation de la mort");
+    	session.invalidate();
+	}
 
     protected void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException,IOException,Exception{
         System.out.println(" process request ");
@@ -298,10 +324,8 @@ public class FrontServlet extends HttpServlet{
         try{
             String url = req.getRequestURL().toString();
             System.out.println(" url : "+url+" et base :  "+base);
-            //out.println(url);
 
             String value = Utilitaire.getUrl( url , base );
-
             if(  MappingUrls.get(value) == null )   throw new Exception(" cette url est invalide ");
 
             String className = MappingUrls.get(value).getClassName();
