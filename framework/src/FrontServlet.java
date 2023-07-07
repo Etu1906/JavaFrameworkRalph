@@ -92,7 +92,7 @@ public class FrontServlet extends HttpServlet{
             method =  Utilitaire.getSetterName(paramName);
             
             try{
-                System.out.println(" paramname :  "+paramName);
+                System.out.println(" paramname :  "+paramName+" :  "+paramValues[0]);
                 field = object.getClass().getDeclaredField( paramName );
                 System.out.println(" classe field :  "+field.getType().getName());
                 Object  value = null;
@@ -100,7 +100,7 @@ public class FrontServlet extends HttpServlet{
                 if( Utilitaire.estTableau( field.getType() ))
                 	value = Utilitaire.creerTableau1D(  field.getType() , paramValues.length , paramValues ); 
                 else
-                	StringCaster.cast(paramValues[0] , field.getType()   );
+                	value = StringCaster.cast(paramValues[0] , field.getType()   );
                 if( StringCaster.isFileUpload( field.getType() ) ){
                     System.out.println(" file upload yes ");
                     System.out.println(" value "+value);
@@ -112,7 +112,7 @@ public class FrontServlet extends HttpServlet{
                     }
                 }
                 System.out.println(" classe maintenant :  "+field.getType().getName());
-         	 System.out.println(" value :  " + value );
+         	 	System.out.println(" value :  " + value );
                 // appeler la methode set + parametre
                 result = Utilitaire.callMethodByName(object, method ,  field.getType()  ,  value  );                    
             }catch( NoSuchMethodException | NoSuchFieldException se ){
@@ -192,7 +192,7 @@ public class FrontServlet extends HttpServlet{
 		if( Method.isAnnotationPresent(Session.class) ){
 			System.out.println(" session present ");
 	        HashMap<String , Object> session = getSessionAttributes( req );
-	        Field field = instanceClazz.getClass().getDeclaredField("session");
+	        Field field = Session_ctrl.class.getDeclaredField("Session_value");
         	field.setAccessible(true);
         	field.set(instanceClazz, session);
         	System.out.println("session values : "+field.get( instanceClazz ));

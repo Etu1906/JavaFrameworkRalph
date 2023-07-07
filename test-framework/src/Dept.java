@@ -7,16 +7,16 @@ public class Dept {
 	static int operation;
 
     @Urls( url="dept-all" )
-    public ModelView findAll(){
-        ModelView view = new ModelView( "list-dept.jsp" );
+    public ModelView2 findAll(){
+        ModelView2 view = new ModelView2( "list-dept.jsp" );
         view.addItem( "operation" , operation );
         return view;
     }     
     
    @Urls( url="verif-dept.do" )
-    public ModelView verificationOperation(){
+    public ModelView2 verificationOperation(){
     	operation += 1;
-        ModelView view = new ModelView( "verifdept.jsp" );
+        ModelView2 view = new ModelView2( "verifdept.jsp" );
         view.addItem( "operation" , operation );
         return view;
     }
